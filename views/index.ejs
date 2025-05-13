@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang='en'>
+
+<head>
+  <meta charset='UTF-8'>
+  <title>URL Shortener</title>
+  <meta name='viewport' content='width=device-width, initial-scale=1'>
+  <style>
+    body {
+      font-family: 'Arial', sans-serif;
+      margin: 0;
+      padding: 0;
+      background-color: #f5f5f5;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      color: #333;
+    }
+
+    .container {
+      background-color: #ffffff;
+      border-radius: 10px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      padding: 30px;
+      width: 100%;
+      max-width: 400px;
+      text-align: center;
+    }
+
+    h1 {
+      font-size: 2rem;
+      color: #333;
+      margin-bottom: 30px;
+    }
+
+    input[type='URL'] {
+      width: 100%;
+      padding: 12px 15px;
+      font-size: 1rem;
+      border: 2px solid #ddd;
+      border-radius: 7px;
+      box-sizing: border-box;
+      margin-bottom: 20px;
+      transition: border-color 0.3s;
+    }
+
+    input[type='URL']:focus {
+      outline: none;
+      border-color: #007bff;
+    }
+
+    button {
+      width: 100%;
+      padding: 12px;
+      font-size: 1.1rem;
+      background-color: #007bff;
+      color: white;
+      border: none;
+      border-radius: 7px;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+      margin-bottom: 20px;
+    }
+
+    button:hover {
+      background-color: #0056b3;
+    }
+
+    .result {
+      margin-top: 30px;
+      font-size: 1.2rem;
+      display: none;
+    }
+
+    .short-URL {
+      color: #007bff;
+      font-weight: bold;
+      word-break: break-word;
+    }
+
+    .short-URL a {
+      text-decoration: none;
+      color: #007bff;
+    }
+
+    .short-URL a:hover {
+      text-decoration: underline;
+    }
+
+    @media (max-width: 500px) {
+      .container {
+        padding: 20px;
+      }
+
+      h1 {
+        font-size: 1.5rem;
+      }
+
+      button {
+        font-size: 1rem;
+      }
+
+      input[type='URL'] {
+        font-size: 1rem;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <div class='container'>
+    <h1>Shorten a Link</h1>
+    <input type='URL' id='URLInput' placeholder='Enter a long URL' required>
+    <button id='shortenBtn'>Shorten</button>
+    <div class='result' id='resultBox' style='display: none;'>
+      <p>Shortened URL:</p>
+      <p class='short-URL'><a href='#' id='shortURLLink' target='_blank'></a></p>
+    </div>
+  </div>
+  <script>
+    const baseURL = '<%= baseURL %>';
+    document.getElementById('shortenBtn').addEventListener('click', async () => {
+      const URLInput = document.getElementById('URLInput').value;
+      if (!URLInput) return alert('Please enter a valid URL.');
+      try {
+        const response = await fetch(`${baseURL}/shorten`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ originalURL: URLInput })
+        });
+        console.log('Request Payload:', { originalURL: URLInput });
+        const result = await response.json();
+        if (response.status === 200) {
+          const resultBox = document.getElementById('resultBox');
+          const shortURLLink = document.getElementById('shortURLLink');
+          shortURLLink.href = result.shortURL;
+          shortURLLink.textContent = result.shortURL;
+          resultBox.style.display = 'block';
+        } else {
+          alert(result.message || 'Something went wrong.');
+        }
+      } catch (err) {
+        console.error(err);
+        alert('Error shortening the URL.');
+      }
+    });
+  </script>
+</body>
+
+</html>
